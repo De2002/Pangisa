@@ -49,7 +49,7 @@ export default function AffiliateDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--bg-warm))]">
+      <div className="min-h-screen bg-[hsl(var(--surface-2))]">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center max-w-sm px-6">
@@ -72,7 +72,7 @@ export default function AffiliateDashboard() {
   // ── Not yet an affiliate ──────────────────────────────────────────────────
   if (!isLoading && !affiliate) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--bg-warm))]">
+      <div className="min-h-screen bg-[hsl(var(--surface-2))]">
         <Navbar />
 
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
@@ -186,7 +186,7 @@ export default function AffiliateDashboard() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--bg-warm))]">
+      <div className="min-h-screen bg-[hsl(var(--surface-2))]">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="w-8 h-8 animate-spin text-[hsl(var(--brand-primary))]" />
@@ -239,7 +239,7 @@ export default function AffiliateDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--bg-warm))]">
+    <div className="min-h-screen bg-[hsl(var(--surface-2))]">
       <Navbar />
 
       {/* Header */}
