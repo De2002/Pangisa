@@ -33,7 +33,7 @@ export default function LandlordDashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[hsl(var(--bg-warm))]">
+      <div className="min-h-screen bg-[hsl(var(--surface-2))]">
         <Navbar />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center max-w-sm px-6">
@@ -105,7 +105,7 @@ export default function LandlordDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--bg-warm))]">
+    <div className="min-h-screen bg-[hsl(var(--surface-2))]">
       <Navbar />
 
       <div className="bg-white border-b border-[hsl(var(--border))]">

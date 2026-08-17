@@ -18,6 +18,7 @@ import LocationSetup from "./pages/LocationSetup";
 import Admin from "./pages/Admin";
 import AffiliateDashboard from "./pages/AffiliateDashboard";
 import NotFound from "./pages/NotFound";
+import { About, Terms, Privacy, Disclaimer } from "./pages/InfoPage";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +34,12 @@ const App = () => (
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/auth" element={<OTPAuth />} />
           <Route path="/setup-location" element={<LocationSetup />} />
+
+          {/* Public information */}
+          <Route path="/about" element={<About />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/disclaimer" element={<Disclaimer />} />
 
           {/* Main app */}
           <Route path="/home" element={<Home />} />

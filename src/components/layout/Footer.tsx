@@ -26,6 +26,15 @@ export default function Footer() {
             </ul>
           </div>
           <div>
+            <h4 className="font-semibold mb-4 text-white/90">Learn & trust</h4>
+            <ul className="space-y-2 text-sm text-white/70">
+              <li><Link to="/about" className="hover:text-white transition-colors">About Pangisa</Link></li>
+              <li><Link to="/disclaimer" className="hover:text-white transition-colors">Verification disclaimer</Link></li>
+              <li><Link to="/terms" className="hover:text-white transition-colors">Terms</Link></li>
+              <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
+            </ul>
+          </div>
+          <div>
             <h4 className="font-semibold mb-4 text-white/90">For Landlords</h4>
             <ul className="space-y-2 text-sm text-white/70">
               <li><Link to="/list-property" className="hover:text-white transition-colors">List Your Property</Link></li>
