@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { Home } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -14,111 +13,8 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
   const redirect = searchParams.get("redirect") ?? "/";
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) {
-      toast.error("Please enter email and password");
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      const ok = login(email, password);
-      setLoading(false);
-      if (ok) {
-        toast.success("Welcome back!");
-        navigate(redirect);
-      }
-    }, 800);
-  };
-
-  const demoTenant = () => {
-    login("james.mutebi@gmail.com", "demo");
-    toast.success("Signed in as demo tenant");
-    navigate(redirect);
-  };
-
-  const demoLandlord = () => {
-    login("david.ssemwanga@gmail.com", "demo");
-    toast.success("Signed in as demo landlord");
-    navigate(redirect);
-  };
-
-  return (
-    <div className="min-h-screen bg-[hsl(var(--bg-warm))] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--brand-primary))] flex items-center justify-center">
-              <Home className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-[hsl(var(--brand-primary))]">Pangisa</span>
-          </Link>
-          <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Welcome back</h1>
-          <p className="text-[hsl(var(--text-muted))] mt-1">Sign in to your account</p>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-[hsl(var(--border))] shadow-sm p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 h-11"
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 h-11"
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary-dark))] text-white font-semibold"
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </Button>
-          </form>
-
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[hsl(var(--border))]" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-[hsl(var(--text-muted))]">Demo accounts</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" size="sm" onClick={demoTenant} className="text-xs">
-              Demo: Tenant
-            </Button>
-            <Button variant="outline" size="sm" onClick={demoLandlord} className="text-xs">
-              Demo: Landlord
-            </Button>
-          </div>
-
-          <p className="text-center text-sm text-[hsl(var(--text-muted))] mt-5">
-            Don't have an account?{" "}
-            <Link to="/signup" className="text-[hsl(var(--brand-primary))] font-medium hover:underline">
-              Create one
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (!email || !password) return toast.error("Please enter email and password"); setLoading(true); setTimeout(() => { const ok = login(email, password); setLoading(false); if (ok) { toast.success("Welcome back!"); navigate(redirect); } }, 800); };
+  const demo = (kind: "tenant" | "landlord") => { login(kind === "tenant" ? "james.mutebi@gmail.com" : "david.ssemwanga@gmail.com", "demo"); toast.success(`Signed in as demo ${kind}`); navigate(redirect); };
+  return <main className="min-h-screen bg-[hsl(var(--bg-warm))] text-[hsl(var(--text-primary))]"><header className="flex items-center justify-between px-5 py-5 sm:px-8"><button aria-label="Go back" onClick={() => navigate(-1)} className="flex size-10 items-center justify-center rounded-full border border-[hsl(var(--text-primary)/0.12)] hover:bg-white"><ArrowLeft className="size-4" /></button><Link to="/" className="font-display text-xl font-extrabold tracking-[-0.06em]">pangisa<span className="text-[hsl(var(--brand-accent))]">.</span></Link><span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--text-muted))]">Sign in</span></header><div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-5xl items-center gap-10 px-5 pb-12 sm:px-8 lg:grid-cols-2 lg:gap-24"><section><p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--brand-accent))]">Your place is waiting</p><h1 className="mt-5 font-display text-[clamp(3rem,8vw,6rem)] font-extrabold leading-[0.88] tracking-[-0.08em]">Good to see you<span className="text-[hsl(var(--brand-accent))]">.</span></h1><p className="mt-7 max-w-md leading-7 text-[hsl(var(--text-muted))]">Sign in to keep exploring homes, managing listings, and moving your next chapter forward.</p></section><section className="rounded-[2rem] border border-[hsl(var(--text-primary)/0.12)] bg-white p-6 shadow-[8px_8px_0_hsl(var(--text-primary))] sm:p-8"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--text-muted))]">01 / Account</p><h2 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.06em]">Welcome back.</h2><form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5"><div><label htmlFor="email" className="mb-2 block text-sm font-bold">Email address</label><Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} className="h-13 rounded-xl bg-[hsl(var(--bg-warm))]" /></div><div><label htmlFor="password" className="mb-2 block text-sm font-bold">Password</label><Input id="password" type="password" placeholder="Your password" value={password} onChange={(e) => setPassword(e.target.value)} className="h-13 rounded-xl bg-[hsl(var(--bg-warm))]" /></div><Button type="submit" disabled={loading} className="h-13 rounded-xl bg-[hsl(var(--text-primary))] font-bold text-[hsl(var(--bg-warm))] hover:bg-[hsl(var(--brand-accent))] hover:text-[hsl(var(--text-primary))]">{loading ? "Signing in…" : "Sign in"}<ArrowUpRight data-icon="inline-end" /></Button></form><div className="mt-7 grid grid-cols-2 gap-3"><Button variant="outline" onClick={() => demo("tenant")} className="rounded-xl text-xs">Demo tenant</Button><Button variant="outline" onClick={() => demo("landlord")} className="rounded-xl text-xs">Demo landlord</Button></div><p className="mt-7 text-center text-sm text-[hsl(var(--text-muted))]">New to Pangisa? <Link to="/signup" className="font-bold underline decoration-[hsl(var(--brand-accent))] decoration-2 underline-offset-4">Create account</Link></p></section></div></main>;
 }

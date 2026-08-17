@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
-import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { ArrowLeft, Mail, KeyRound, Home } from "lucide-react";
+import { useRef, useState } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { ArrowLeft, ArrowUpRight, KeyRound, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,35 +13,23 @@ export default function OTPAuth() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { sendOTP, verifyOTP } = useAuth();
-
   const role = (params.get("role") as "tenant" | "landlord") ?? "tenant";
   const mode = params.get("mode") ?? "signup";
   const isSignup = mode !== "login";
-
   const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [loading, setLoading] = useState(false);
-
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleSendOTP = async () => {
-    if (!email.includes("@")) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-    if (isSignup && !name.trim()) {
-      toast.error("Please enter your name.");
-      return;
-    }
+    if (!email.includes("@")) return toast.error("Please enter a valid email address.");
+    if (isSignup && !name.trim()) return toast.error("Please enter your name.");
     setLoading(true);
     const { error } = await sendOTP(email);
     setLoading(false);
-    if (error) {
-      toast.error(error);
-      return;
-    }
+    if (error) return toast.error(error);
     setStep("otp");
     toast.success("Code sent! Check your email.");
   };
@@ -51,19 +39,8 @@ export default function OTPAuth() {
     const next = [...otp];
     next[index] = value;
     setOtp(next);
-    if (value && index < 3) {
-      otpRefs.current[index + 1]?.focus();
-    }
-    // Auto-submit when all 4 filled
-    if (value && index === 3 && next.every((d) => d !== "")) {
-      handleVerifyWithCode(next.join(""));
-    }
-  };
-
-  const handleOTPKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
+    if (value && index < 3) otpRefs.current[index + 1]?.focus();
+    if (value && index === 3 && next.every(Boolean)) handleVerifyWithCode(next.join(""));
   };
 
   const handleVerifyWithCode = async (code: string) => {
@@ -71,202 +48,57 @@ export default function OTPAuth() {
     const { error } = await verifyOTP(email, code, role, name || undefined);
     setLoading(false);
     if (error) {
-      toast.error(error.includes("otp") || error.includes("token") ? "Wrong code. Please check your email and try again." : error);
+      toast.error(error.includes("otp") || error.includes("token") ? "Wrong code. Please try again." : error);
       setOtp(["", "", "", ""]);
       otpRefs.current[0]?.focus();
       return;
     }
     toast.success(isSignup ? "Welcome to Pangisa!" : "Welcome back!");
-    if (role === "landlord") {
-      navigate("/landlord", { replace: true });
-    } else {
-      navigate("/setup-location", { replace: true });
-    }
+    navigate(role === "landlord" ? "/landlord" : "/setup-location", { replace: true });
   };
 
-  const handleVerify = () => {
-    const code = otp.join("");
-    if (code.length < 4) {
-      toast.error("Please enter the full 4-digit code.");
-      return;
-    }
-    handleVerifyWithCode(code);
-  };
+  const brand = role === "landlord" ? "List your place" : "Find your next place";
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--bg-warm))] flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4">
-        <button
-          onClick={() => step === "otp" ? setStep("email") : navigate(-1)}
-          className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white border border-transparent hover:border-[hsl(var(--border))] transition-all"
-        >
-          <ArrowLeft className="w-4 h-4 text-[hsl(var(--text-secondary))]" />
+    <main className="min-h-screen bg-[hsl(var(--bg-warm))] text-[hsl(var(--text-primary))]">
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
+        <button aria-label="Go back" onClick={() => step === "otp" ? setStep("email") : navigate(-1)} className="flex size-10 items-center justify-center rounded-full border border-[hsl(var(--text-primary)/0.12)] transition hover:bg-white">
+          <ArrowLeft className="size-4" />
         </button>
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[hsl(var(--brand-primary))] flex items-center justify-center">
-            <Home className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-[hsl(var(--brand-primary))]">Pangisa</span>
-        </Link>
-        <div className="w-10" />
-      </div>
+        <Link to="/" className="font-display text-xl font-extrabold tracking-[-0.06em]">pangisa<span className="text-[hsl(var(--brand-accent))]">.</span></Link>
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[hsl(var(--text-muted))]">Secure access</span>
+      </header>
 
-      <div className="flex-1 flex flex-col px-5 pt-4 pb-12 max-w-md mx-auto w-full">
+      <div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-6xl items-center gap-10 px-5 pb-12 pt-8 sm:px-8 lg:grid-cols-[1fr_440px] lg:gap-24 lg:pt-0">
+        <section className="max-w-xl">
+          <p className="mb-5 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--brand-accent))]">{role === "landlord" ? "Landlord access" : "Tenant access"}</p>
+          <h1 className="font-display text-[clamp(3.2rem,9vw,6.5rem)] font-extrabold leading-[0.88] tracking-[-0.08em]">{brand}<span className="text-[hsl(var(--brand-accent))]">.</span></h1>
+          <p className="mt-7 max-w-md text-base leading-7 text-[hsl(var(--text-muted))]">{role === "landlord" ? "Turn an empty room into a real opportunity. Your next tenant is already looking." : "Good homes should not be hard to find. Get straight to places that fit your life."}</p>
+          <div className="mt-9 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-[hsl(var(--text-muted))]"><span className="size-2 rounded-full bg-[hsl(var(--brand-accent))]" /> No password. Just a secure email code.</div>
+        </section>
 
-        {/* Role chip */}
-        <div className={cn(
-          "inline-flex items-center gap-2 self-start rounded-full px-3 py-1.5 mb-7 text-xs font-semibold border",
-          role === "tenant"
-            ? "bg-blue-50 border-blue-200 text-blue-700"
-            : "bg-amber-50 border-amber-200 text-amber-700"
-        )}>
-          <span>{role === "tenant" ? "🔍" : "🏠"}</span>
-          {role === "tenant" ? "Tenant Account" : "Landlord Account"}
-        </div>
-
-        {/* EMAIL STEP */}
-        {step === "email" && (
-          <div className="flex flex-col flex-1">
-            <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-1">
-              {isSignup ? "Create your account" : "Sign in"}
-            </h1>
-            <p className="text-sm text-[hsl(var(--text-muted))] mb-8 leading-relaxed">
-              {isSignup
-                ? "Enter your email. We will send you a 4-digit code."
-                : "Enter your email to get a sign-in code."}
-            </p>
-
-            <div className="space-y-4 flex-1">
-              {isSignup && (
-                <div>
-                  <label className="text-sm font-semibold text-[hsl(var(--text-secondary))] block mb-2">
-                    Your name
-                  </label>
-                  <Input
-                    placeholder="e.g. Sarah Nakato"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="h-13 text-base bg-white border-[hsl(var(--border))] focus:border-[hsl(var(--brand-primary))] rounded-xl"
-                    style={{ height: 52 }}
-                  />
-                </div>
-              )}
-              <div>
-                <label className="text-sm font-semibold text-[hsl(var(--text-secondary))] block mb-2">
-                  Email address
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--text-muted))]" />
-                  <Input
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSendOTP()}
-                    className="pl-11 bg-white border-[hsl(var(--border))] focus:border-[hsl(var(--brand-primary))] rounded-xl"
-                    style={{ height: 52 }}
-                  />
-                </div>
+        <section className="rounded-[2rem] border border-[hsl(var(--text-primary)/0.12)] bg-white p-6 shadow-[8px_8px_0_hsl(var(--text-primary))] sm:p-8">
+          {step === "email" ? (
+            <>
+              <div className="mb-8 flex items-start justify-between gap-4"><div><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--text-muted))]">01 / 02</p><h2 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.06em]">{isSignup ? "Start here" : "Welcome back"}</h2></div><ArrowUpRight className="size-5 text-[hsl(var(--brand-accent))]" /></div>
+              <div className="flex flex-col gap-5">
+                {isSignup && <div><label htmlFor="name" className="mb-2 block text-sm font-bold">Your name</label><Input id="name" placeholder="e.g. Sarah Nakato" value={name} onChange={(e) => setName(e.target.value)} className="h-13 rounded-xl border-[hsl(var(--text-primary)/0.18)] bg-[hsl(var(--bg-warm))]" /></div>}
+                <div><label htmlFor="auth-email" className="mb-2 block text-sm font-bold">Email address</label><div className="relative"><Mail className="absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[hsl(var(--text-muted))]" /><Input id="auth-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing && e.keyCode !== 229) handleSendOTP(); }} className="h-13 rounded-xl border-[hsl(var(--text-primary)/0.18)] bg-[hsl(var(--bg-warm))] pl-11" /></div></div>
+                <Button onClick={handleSendOTP} disabled={loading} className="h-13 w-full rounded-xl bg-[hsl(var(--text-primary))] font-bold text-[hsl(var(--bg-warm))] hover:bg-[hsl(var(--brand-accent))] hover:text-[hsl(var(--text-primary))]">{loading ? "Sending code…" : "Continue"}<ArrowUpRight data-icon="inline-end" /></Button>
               </div>
-            </div>
-
-            <div className="mt-8 space-y-3">
-              <Button
-                onClick={handleSendOTP}
-                disabled={loading}
-                className="w-full font-bold bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary-dark))] text-white rounded-xl shadow-sm"
-                style={{ height: 52 }}
-              >
-                {loading ? "Sending code…" : "Send Code →"}
-              </Button>
-
-              <p className="text-xs text-center text-[hsl(var(--text-muted))]">
-                No password needed — just a code sent to your email.
-              </p>
-
-              {mode === "signup" ? (
-                <button
-                  onClick={() => navigate(`/auth?role=${role}&mode=login`)}
-                  className="w-full text-sm text-center text-[hsl(var(--text-muted))] hover:text-[hsl(var(--brand-primary))] py-2 transition-colors"
-                >
-                  Already have an account? <span className="font-semibold text-[hsl(var(--brand-primary))]">Sign in</span>
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate(`/auth?role=${role}`)}
-                  className="w-full text-sm text-center text-[hsl(var(--text-muted))] hover:text-[hsl(var(--brand-primary))] py-2 transition-colors"
-                >
-                  New here? <span className="font-semibold text-[hsl(var(--brand-primary))]">Create account</span>
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* OTP STEP */}
-        {step === "otp" && (
-          <div className="flex flex-col flex-1">
-            <div className="w-14 h-14 rounded-2xl bg-[hsl(var(--brand-primary)/0.1)] flex items-center justify-center mb-6">
-              <KeyRound className="w-7 h-7 text-[hsl(var(--brand-primary))]" />
-            </div>
-
-            <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] mb-1">Enter the code</h1>
-            <p className="text-sm text-[hsl(var(--text-muted))] mb-1">
-              We sent a 4-digit code to
-            </p>
-            <p className="text-sm font-semibold text-[hsl(var(--text-primary))] mb-8 truncate">{email}</p>
-
-            {/* 4-digit OTP boxes */}
-            <div className="flex gap-3 justify-center mb-8">
-              {otp.map((digit, i) => (
-                <input
-                  key={i}
-                  ref={(el) => { otpRefs.current[i] = el; }}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  value={digit}
-                  onChange={(e) => handleOTPChange(i, e.target.value)}
-                  onKeyDown={(e) => handleOTPKeyDown(i, e)}
-                  className={cn(
-                    "w-16 h-16 text-center text-2xl font-bold rounded-2xl border-2 outline-none transition-all bg-white",
-                    digit
-                      ? "border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] shadow-sm"
-                      : "border-[hsl(var(--border))] text-[hsl(var(--text-primary))]",
-                    "focus:border-[hsl(var(--brand-primary))] focus:shadow-sm"
-                  )}
-                />
-              ))}
-            </div>
-
-            <div className="mt-auto space-y-3">
-              <Button
-                onClick={handleVerify}
-                disabled={loading || otp.join("").length < 4}
-                className="w-full font-bold bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary-dark))] text-white rounded-xl"
-                style={{ height: 52 }}
-              >
-                {loading ? "Verifying…" : "Confirm Code"}
-              </Button>
-
-              <button
-                onClick={async () => {
-                  const { error } = await sendOTP(email);
-                  if (!error) {
-                    toast.success("New code sent!");
-                    setOtp(["", "", "", ""]);
-                    otpRefs.current[0]?.focus();
-                  }
-                }}
-                className="w-full text-sm text-center text-[hsl(var(--text-muted))] hover:text-[hsl(var(--brand-primary))] py-2 transition-colors"
-              >
-                Didn't get it? <span className="font-semibold">Resend code</span>
-              </button>
-            </div>
-          </div>
-        )}
+              <p className="mt-5 text-center text-xs leading-5 text-[hsl(var(--text-muted))]">By continuing, you agree to use Pangisa responsibly.</p>
+              <button onClick={() => navigate(isSignup ? `/auth?role=${role}&mode=login` : `/auth?role=${role}`)} className="mt-6 w-full text-center text-sm font-bold underline decoration-[hsl(var(--brand-accent))] decoration-2 underline-offset-4">{isSignup ? "Already have an account? Sign in" : "New here? Create an account"}</button>
+            </>
+          ) : (
+            <>
+              <div className="mb-8"><div className="mb-5 flex size-12 items-center justify-center rounded-2xl bg-[hsl(var(--brand-accent))]"><KeyRound className="size-5" /></div><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--text-muted))]">02 / 02</p><h2 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.06em]">Check your inbox.</h2><p className="mt-3 text-sm leading-6 text-[hsl(var(--text-muted))]">Enter the 4-digit code we sent to <strong className="text-[hsl(var(--text-primary))]">{email}</strong>.</p></div>
+              <div className="mb-8 flex justify-between gap-2">{otp.map((digit, i) => <input key={i} aria-label={`Digit ${i + 1}`} ref={(el) => { otpRefs.current[i] = el; }} type="text" inputMode="numeric" maxLength={1} value={digit} onChange={(e) => handleOTPChange(i, e.target.value)} onKeyDown={(e) => { if (e.key === "Backspace" && !otp[i] && i > 0) otpRefs.current[i - 1]?.focus(); }} className={cn("size-14 rounded-xl border-2 bg-[hsl(var(--bg-warm))] text-center font-mono text-2xl font-bold outline-none transition sm:size-16", digit ? "border-[hsl(var(--brand-accent))]" : "border-[hsl(var(--text-primary)/0.15)]", "focus:border-[hsl(var(--text-primary))]")} />)}</div>
+              <Button onClick={() => otp.join("").length === 4 ? handleVerifyWithCode(otp.join("")) : toast.error("Please enter the full 4-digit code.")} disabled={loading || otp.join("").length < 4} className="h-13 w-full rounded-xl bg-[hsl(var(--text-primary))] font-bold text-[hsl(var(--bg-warm))] hover:bg-[hsl(var(--brand-accent))] hover:text-[hsl(var(--text-primary))]">{loading ? "Verifying…" : "Enter Pangisa"}</Button>
+              <button onClick={async () => { const { error } = await sendOTP(email); if (!error) { toast.success("New code sent!"); setOtp(["", "", "", ""]); otpRefs.current[0]?.focus(); } }} className="mt-5 w-full text-center text-sm font-bold underline decoration-[hsl(var(--brand-accent))] decoration-2 underline-offset-4">Resend code</button>
+            </>
+          )}
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
