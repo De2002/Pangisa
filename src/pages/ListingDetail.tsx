@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   MapPin, ShieldCheck, Phone, ChevronLeft, ChevronRight,
   Bookmark, BookmarkCheck, Flag, Share2, Clock, Lock, Play,
-  MessageCircle, Check, X, CheckCircle2, Loader2,
+  MessageCircle, Check, X, CheckCircle2, Loader2, Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
@@ -13,6 +13,8 @@ import GetItNowModal from "@/components/features/GetItNowModal";
 import PropertyMap from "@/components/features/PropertyMap";
 import { useListing, useSavedListings, useTenantTransactions, useListings } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
+import { useAffiliate } from "@/hooks/useAffiliate";
+import { storeReferralCode } from "@/hooks/useAffiliate";
 import { formatUGX, calcTenantFee } from "@/constants/fees";
 import { AMENITY_LIST } from "@/constants/amenities";
 import { getPropertyTypeIcon, getPropertyTypeLabel } from "@/constants/propertyTypes";
@@ -30,6 +32,14 @@ export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { affiliate } = useAffiliate(user?.id ?? "");
+
+  // Capture ref code from URL on load (visitor arriving via affiliate link)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+    if (refCode) storeReferralCode(refCode);
+  }, []);
 
   const { data: listing, isLoading } = useListing(id ?? "");
   const { getItNow } = useListings();
@@ -90,16 +100,20 @@ export default function ListingDetail() {
   };
 
   const handleShare = async () => {
+    // Build share URL — include affiliate ref if user is an affiliate
+    const baseUrl = window.location.origin;
+    const refSuffix = affiliate?.referralCode ? `?ref=${affiliate.referralCode}` : "";
+    const listingUrl = `${baseUrl}/listing/${listing!.id}${refSuffix}`;
     const shareData = {
-      title: listing.title,
-      text: `${listing.title} — ${formatUGX(listing.monthlyRent)}/month in ${listing.location}`,
-      url: window.location.href,
+      title: listing!.title,
+      text: `${listing!.title} — ${formatUGX(listing!.monthlyRent)}/month in ${listing!.location}`,
+      url: listingUrl,
     };
     if (navigator.share) {
       try { await navigator.share(shareData); } catch { /* cancelled */ }
     } else {
-      await navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard!");
+      await navigator.clipboard.writeText(listingUrl);
+      toast.success(affiliate?.referralCode ? "Referral link copied! You'll earn 20% if someone uses Get It Now." : "Link copied to clipboard!");
     }
   };
 
@@ -218,8 +232,13 @@ export default function ListingDetail() {
                     </button>
                   )}
                   <button onClick={handleShare}
-                    className="w-9 h-9 rounded-xl border border-[hsl(var(--border))] flex items-center justify-center hover:bg-[hsl(var(--surface-2))] transition-colors">
-                    <Share2 className="w-4 h-4 text-[hsl(var(--text-muted))]" />
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-colors",
+                      affiliate
+                        ? "border-[hsl(var(--brand-primary)/0.4)] text-[hsl(var(--brand-primary))] bg-[hsl(var(--brand-primary)/0.05)] hover:bg-[hsl(var(--brand-primary)/0.1)]"
+                        : "border-[hsl(var(--border))] text-[hsl(var(--text-muted))] hover:bg-[hsl(var(--surface-2))]"
+                    )}>
+                    {affiliate ? <><Gift className="w-3.5 h-3.5" /> Share & Earn</> : <><Share2 className="w-4 h-4" /></>}
                   </button>
                 </div>
               </div>

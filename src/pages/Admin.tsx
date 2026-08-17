@@ -4,7 +4,7 @@ import {
   ShieldCheck, LayoutDashboard, Home, Users, CreditCard,
   Flag, AlertTriangle, LogOut, Eye, EyeOff, Pause, Trash2,
   CheckCircle2, XCircle, TrendingUp, Clock, Search, ChevronDown,
-  MoreVertical, RefreshCw,
+  MoreVertical, RefreshCw, Gift, Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { MOCK_LISTINGS, MOCK_USERS, MOCK_TRANSACTIONS, MOCK_LANDLORDS, MOCK_LANDLORD_VERIFICATIONS } from "@/constants/mockData";
 import { timeAgo } from "@/lib/timeAgo";
+import { supabase } from "@/lib/supabase";
 import type { Listing } from "@/types";
 
 const ADMIN_KEY = "pangisa_admin_session";
@@ -31,7 +32,7 @@ const MOCK_FLAGS = [
   { id: "f3", listingId: "p8", listingTitle: "3-Bedroom in Kyanja", reason: "Listing not confirmed for 8+ hours", severity: "medium", flaggedAt: new Date(Date.now() - 28800000).toISOString() },
 ];
 
-type AdminTab = "overview" | "listings" | "users" | "transactions" | "reports" | "flags";
+type AdminTab = "overview" | "listings" | "users" | "transactions" | "reports" | "flags" | "affiliates";
 
 function formatUGX(n: number) {
   return `UGX ${n.toLocaleString()}`;
@@ -92,6 +93,120 @@ function AdminLogin({ onLogin }: { onLogin: () => void }) {
         <p className="text-xs text-center text-[hsl(var(--text-muted))] mt-5">
           Demo password: <span className="font-mono font-bold text-[hsl(var(--brand-primary))]">admin2026</span>
         </p>
+        {/* ── AFFILIATES ── */}
+        {tab === "affiliates" && (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Affiliates</h1>
+                <p className="text-sm text-[hsl(var(--text-muted))] mt-0.5">{affiliates.length} active affiliates</p>
+              </div>
+              <button onClick={fetchAffiliates} className="flex items-center gap-1.5 text-sm text-[hsl(var(--brand-primary))] font-semibold hover:underline">
+                <RefreshCw className="w-4 h-4" /> Refresh
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Total affiliates", value: affiliates.length, color: "text-[hsl(var(--brand-primary))]" },
+                { label: "Total commissions", value: formatUGX(affiliates.reduce((s, a) => s + a.totalEarnings, 0)), color: "text-emerald-700" },
+                { label: "Pending payouts", value: payouts.filter(p => p.status === "requested").length, color: "text-amber-700" },
+                { label: "Total paid out", value: formatUGX(affiliates.reduce((s, a) => s + a.totalPaidOut, 0)), color: "text-slate-500" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="bg-white rounded-2xl border border-[hsl(var(--border))] p-4">
+                  <p className={`text-xl font-bold ${color} leading-none mb-1 truncate`}>{value}</p>
+                  <p className="text-xs text-[hsl(var(--text-muted))]">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            {loadingAffiliates ? (
+              <div className="flex justify-center py-10">
+                <div className="w-8 h-8 border-2 border-[hsl(var(--brand-primary))] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : affiliates.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[hsl(var(--border))] p-10 text-center">
+                <Gift className="w-10 h-10 mx-auto mb-3 text-[hsl(var(--text-muted))] opacity-40" />
+                <p className="font-semibold text-[hsl(var(--text-primary))] mb-1">No affiliates yet</p>
+                <p className="text-sm text-[hsl(var(--text-muted))]">Users who join the affiliate program will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {affiliates.map((aff) => (
+                  <div key={aff.id} className="bg-white rounded-2xl border border-[hsl(var(--border))] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-primary)/0.1)] flex items-center justify-center text-sm font-bold text-[hsl(var(--brand-primary))] flex-shrink-0">
+                          {(aff.username ?? "A").charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="text-sm font-bold text-[hsl(var(--text-primary))]">{aff.username ?? "Unknown"}</p>
+                            <span className="font-mono text-xs bg-[hsl(var(--brand-primary)/0.08)] text-[hsl(var(--brand-primary))] px-2 py-0.5 rounded-full font-bold">
+                              {aff.referralCode}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[hsl(var(--text-muted))]">Joined {timeAgo(aff.createdAt)}</p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold text-emerald-700">{formatUGX(aff.availableBalance)}</p>
+                        <p className="text-xs text-[hsl(var(--text-muted))]">available</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[hsl(var(--text-muted))]">
+                      <span>Total earned: <strong className="text-[hsl(var(--text-primary))]">{formatUGX(aff.totalEarnings)}</strong></span>
+                      <span>Paid out: <strong className="text-[hsl(var(--text-primary))]">{formatUGX(aff.totalPaidOut)}</strong></span>
+                      <span className={cn("font-semibold capitalize", aff.status === "active" ? "text-emerald-600" : "text-red-500")}>{aff.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {payouts.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-3">Payout Requests</p>
+                <div className="space-y-3">
+                  {payouts.map((payout) => {
+                    const aff = affiliates.find((a) => a.id === payout.affiliateId);
+                    return (
+                      <div key={payout.id} className="bg-white rounded-2xl border border-[hsl(var(--border))] p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">{aff?.username ?? "Unknown"}</p>
+                            <p className="text-xs text-[hsl(var(--text-muted))] mt-0.5">{payout.phone ?? "No phone"} · {timeAgo(payout.requestedAt)}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-[hsl(var(--brand-primary))]">{formatUGX(payout.amount)}</p>
+                            <span className={cn(
+                              "text-xs font-semibold px-2.5 py-1 rounded-full capitalize",
+                              payout.status === "requested" ? "bg-amber-100 text-amber-700" :
+                              payout.status === "paid" ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-700"
+                            )}>{payout.status}</span>
+                            {payout.status === "requested" && (
+                              <button
+                                onClick={async () => {
+                                  await supabase.from("affiliate_payouts").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", payout.id);
+                                  if (aff) await supabase.from("affiliate_profiles").update({ total_paid_out: aff.totalPaidOut + payout.amount }).eq("id", aff.id);
+                                  fetchAffiliates();
+                                  import("sonner").then(({ toast }) => toast.success("Payout marked as paid."));
+                                }}
+                                className="px-3 py-1 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-600 transition-colors"
+                              >
+                                Mark Paid
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -112,9 +227,47 @@ export default function Admin() {
   const [userSearch, setUserSearch] = useState("");
   const [reportFilter, setReportFilter] = useState<"all" | "open" | "resolved">("open");
 
+  // Real affiliate data
+  const [affiliates, setAffiliates] = useState<{
+    id: string; userId: string; referralCode: string; status: string;
+    totalEarnings: number; availableBalance: number; totalPaidOut: number; createdAt: string; username?: string;
+  }[]>([]);
+  const [payouts, setPayouts] = useState<{
+    id: string; affiliateId: string; amount: number; phone: string | null; status: string; requestedAt: string;
+  }[]>([]);
+  const [loadingAffiliates, setLoadingAffiliates] = useState(false);
+
+  const fetchAffiliates = async () => {
+    setLoadingAffiliates(true);
+    const { data: affRows } = await supabase.from("affiliate_profiles").select("*").order("created_at", { ascending: false });
+    if (affRows?.length) {
+      const userIds = affRows.map((r) => r.user_id as string);
+      const { data: profiles } = await supabase.from("user_profiles").select("id, username").in("id", userIds);
+      const profileMap = new Map((profiles ?? []).map((p) => [p.id, p.username]));
+      setAffiliates(affRows.map((r) => ({
+        id: r.id as string, userId: r.user_id as string, referralCode: r.referral_code as string,
+        status: r.status as string, totalEarnings: (r.total_earnings as number) ?? 0,
+        availableBalance: (r.available_balance as number) ?? 0, totalPaidOut: (r.total_paid_out as number) ?? 0,
+        createdAt: r.created_at as string, username: profileMap.get(r.user_id as string) ?? undefined,
+      })));
+    } else {
+      setAffiliates([]);
+    }
+    const { data: payoutRows } = await supabase.from("affiliate_payouts").select("*").order("requested_at", { ascending: false });
+    setPayouts((payoutRows ?? []).map((r) => ({
+      id: r.id as string, affiliateId: r.affiliate_id as string, amount: r.amount as number,
+      phone: r.phone as string | null, status: r.status as string, requestedAt: r.requested_at as string,
+    })));
+    setLoadingAffiliates(false);
+  };
+
   useEffect(() => {
     if (localStorage.getItem(ADMIN_KEY) === "true") setAuthed(true);
   }, []);
+
+  useEffect(() => {
+    if (tab === "affiliates") fetchAffiliates();
+  }, [tab]);
 
   if (!authed) return <AdminLogin onLogin={() => setAuthed(true)} />;
 
@@ -160,6 +313,7 @@ export default function Admin() {
     { id: "transactions", label: "Transactions", icon: CreditCard, badge: MOCK_TRANSACTIONS.length },
     { id: "reports", label: "Reports", icon: Flag, badge: openReports },
     { id: "flags", label: "Suspicious", icon: AlertTriangle, badge: MOCK_FLAGS.length },
+    { id: "affiliates", label: "Affiliates", icon: Gift },
   ];
 
   return (
@@ -648,6 +802,120 @@ export default function Admin() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+        {/* ── AFFILIATES ── */}
+        {tab === "affiliates" && (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Affiliates</h1>
+                <p className="text-sm text-[hsl(var(--text-muted))] mt-0.5">{affiliates.length} active affiliates</p>
+              </div>
+              <button onClick={fetchAffiliates} className="flex items-center gap-1.5 text-sm text-[hsl(var(--brand-primary))] font-semibold hover:underline">
+                <RefreshCw className="w-4 h-4" /> Refresh
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: "Total affiliates", value: affiliates.length, color: "text-[hsl(var(--brand-primary))]" },
+                { label: "Total commissions", value: formatUGX(affiliates.reduce((s, a) => s + a.totalEarnings, 0)), color: "text-emerald-700" },
+                { label: "Pending payouts", value: payouts.filter(p => p.status === "requested").length, color: "text-amber-700" },
+                { label: "Total paid out", value: formatUGX(affiliates.reduce((s, a) => s + a.totalPaidOut, 0)), color: "text-slate-500" },
+              ].map(({ label, value, color }) => (
+                <div key={label} className="bg-white rounded-2xl border border-[hsl(var(--border))] p-4">
+                  <p className={`text-xl font-bold ${color} leading-none mb-1 truncate`}>{value}</p>
+                  <p className="text-xs text-[hsl(var(--text-muted))]">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            {loadingAffiliates ? (
+              <div className="flex justify-center py-10">
+                <div className="w-8 h-8 border-2 border-[hsl(var(--brand-primary))] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : affiliates.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[hsl(var(--border))] p-10 text-center">
+                <Gift className="w-10 h-10 mx-auto mb-3 text-[hsl(var(--text-muted))] opacity-40" />
+                <p className="font-semibold text-[hsl(var(--text-primary))] mb-1">No affiliates yet</p>
+                <p className="text-sm text-[hsl(var(--text-muted))]">Users who join the affiliate program will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {affiliates.map((aff) => (
+                  <div key={aff.id} className="bg-white rounded-2xl border border-[hsl(var(--border))] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[hsl(var(--brand-primary)/0.1)] flex items-center justify-center text-sm font-bold text-[hsl(var(--brand-primary))] flex-shrink-0">
+                          {(aff.username ?? "A").charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className="text-sm font-bold text-[hsl(var(--text-primary))]">{aff.username ?? "Unknown"}</p>
+                            <span className="font-mono text-xs bg-[hsl(var(--brand-primary)/0.08)] text-[hsl(var(--brand-primary))] px-2 py-0.5 rounded-full font-bold">
+                              {aff.referralCode}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[hsl(var(--text-muted))]">Joined {timeAgo(aff.createdAt)}</p>
+                        </div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-bold text-emerald-700">{formatUGX(aff.availableBalance)}</p>
+                        <p className="text-xs text-[hsl(var(--text-muted))]">available</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[hsl(var(--text-muted))]">
+                      <span>Total earned: <strong className="text-[hsl(var(--text-primary))]">{formatUGX(aff.totalEarnings)}</strong></span>
+                      <span>Paid out: <strong className="text-[hsl(var(--text-primary))]">{formatUGX(aff.totalPaidOut)}</strong></span>
+                      <span className={cn("font-semibold capitalize", aff.status === "active" ? "text-emerald-600" : "text-red-500")}>{aff.status}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {payouts.length > 0 && (
+              <div>
+                <p className="text-xs font-bold text-[hsl(var(--text-muted))] uppercase tracking-wider mb-3">Payout Requests</p>
+                <div className="space-y-3">
+                  {payouts.map((payout) => {
+                    const aff = affiliates.find((a) => a.id === payout.affiliateId);
+                    return (
+                      <div key={payout.id} className="bg-white rounded-2xl border border-[hsl(var(--border))] p-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-sm font-semibold text-[hsl(var(--text-primary))]">{aff?.username ?? "Unknown"}</p>
+                            <p className="text-xs text-[hsl(var(--text-muted))] mt-0.5">{payout.phone ?? "No phone"} · {timeAgo(payout.requestedAt)}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-[hsl(var(--brand-primary))]">{formatUGX(payout.amount)}</p>
+                            <span className={cn(
+                              "text-xs font-semibold px-2.5 py-1 rounded-full capitalize",
+                              payout.status === "requested" ? "bg-amber-100 text-amber-700" :
+                              payout.status === "paid" ? "bg-gray-100 text-gray-500" : "bg-blue-100 text-blue-700"
+                            )}>{payout.status}</span>
+                            {payout.status === "requested" && (
+                              <button
+                                onClick={async () => {
+                                  await supabase.from("affiliate_payouts").update({ status: "paid", paid_at: new Date().toISOString() }).eq("id", payout.id);
+                                  if (aff) await supabase.from("affiliate_profiles").update({ total_paid_out: aff.totalPaidOut + payout.amount }).eq("id", aff.id);
+                                  fetchAffiliates();
+                                  import("sonner").then(({ toast }) => toast.success("Payout marked as paid."));
+                                }}
+                                className="px-3 py-1 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-600 transition-colors"
+                              >
+                                Mark Paid
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

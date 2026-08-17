@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   MapPin, ShieldCheck, Zap, ArrowRight, Home,
@@ -11,6 +11,7 @@ import ListingCard from "@/components/features/ListingCard";
 import SearchBar from "@/components/features/SearchBar";
 import { useListings, useSavedListings } from "@/hooks/useListings";
 import { useAuth } from "@/hooks/useAuth";
+import { storeReferralCode } from "@/hooks/useAffiliate";
 import type { SearchFilters } from "@/types";
 import heroImg from "@/assets/hero-kampala.jpg";
 import { Loader2 } from "lucide-react";
@@ -20,6 +21,13 @@ export default function Index() {
   const { user } = useAuth();
   const { listings, isLoading } = useListings();
   const { isSaved, toggleSave } = useSavedListings(user?.id ?? "");
+
+  // Capture affiliate ref code from homepage URL (e.g. pangisa.com/?ref=PAN12345)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get("ref");
+    if (refCode) storeReferralCode(refCode);
+  }, []);
 
   const featured = listings.slice(0, 6);
 
