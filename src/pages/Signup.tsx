@@ -1,138 +1,16 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { Home } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 type Role = "tenant" | "landlord";
 
 export default function Signup() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const { login, loginAsLandlord } = useAuth();
-  const [role, setRole] = useState<Role>((searchParams.get("role") as Role) ?? "tenant");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email || !phone || !password) {
-      toast.error("Please fill all fields");
-      return;
-    }
-    setLoading(true);
-    setTimeout(() => {
-      if (role === "landlord") {
-        loginAsLandlord(email);
-      } else {
-        login(email, password);
-      }
-      setLoading(false);
-      toast.success("Account created! Welcome to Pangisa.");
-      navigate(role === "landlord" ? "/landlord" : "/");
-    }, 1000);
-  };
-
-  return (
-    <div className="min-h-screen bg-[hsl(var(--bg-warm))] flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-[hsl(var(--brand-primary))] flex items-center justify-center">
-              <Home className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-2xl font-bold text-[hsl(var(--brand-primary))]">Pangisa</span>
-          </Link>
-          <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))]">Create your account</h1>
-          <p className="text-[hsl(var(--text-muted))] mt-1">Join Uganda's rental marketplace</p>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-[hsl(var(--border))] shadow-sm p-6">
-          {/* Role toggle */}
-          <div className="flex rounded-xl border border-[hsl(var(--border))] p-1 mb-5">
-            {(["tenant", "landlord"] as Role[]).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  role === r
-                    ? "bg-[hsl(var(--brand-primary))] text-white shadow-sm"
-                    : "text-[hsl(var(--text-muted))] hover:text-[hsl(var(--text-primary))]"
-                }`}
-              >
-                {r === "tenant" ? "I'm Looking for a Rental" : "I'm a Landlord"}
-              </button>
-            ))}
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                placeholder="Your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1 h-11"
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">Email address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 h-11"
-              />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="e.g. 0701234567"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 h-11"
-              />
-            </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Create a password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 h-11"
-              />
-            </div>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary-dark))] text-white font-semibold"
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </Button>
-          </form>
-
-          <p className="text-center text-sm text-[hsl(var(--text-muted))] mt-5">
-            Already have an account?{" "}
-            <Link to="/login" className="text-[hsl(var(--brand-primary))] font-medium hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  const navigate = useNavigate(); const [params] = useSearchParams(); const { login, loginAsLandlord } = useAuth();
+  const [role, setRole] = useState<Role>((params.get("role") as Role) ?? "tenant"); const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [phone, setPhone] = useState(""); const [password, setPassword] = useState(""); const [loading, setLoading] = useState(false);
+  const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); if (!name || !email || !phone || !password) return toast.error("Please fill all fields"); setLoading(true); setTimeout(() => { role === "landlord" ? loginAsLandlord(email) : login(email, password); setLoading(false); toast.success("Account created! Welcome to Pangisa."); navigate(role === "landlord" ? "/landlord" : "/"); }, 1000); };
+  return <main className="min-h-screen bg-[hsl(var(--bg-warm))] text-[hsl(var(--text-primary))]"><header className="flex items-center justify-between px-5 py-5 sm:px-8"><button aria-label="Go back" onClick={() => navigate(-1)} className="flex size-10 items-center justify-center rounded-full border border-[hsl(var(--text-primary)/0.12)] hover:bg-white"><ArrowLeft className="size-4" /></button><Link to="/" className="font-display text-xl font-extrabold tracking-[-0.06em]">pangisa<span className="text-[hsl(var(--brand-accent))]">.</span></Link><span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--text-muted))]">Join us</span></header><div className="mx-auto grid min-h-[calc(100vh-88px)] max-w-5xl items-center gap-10 px-5 pb-12 sm:px-8 lg:grid-cols-2 lg:gap-24"><section><p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--brand-accent))]">Make your move</p><h1 className="mt-5 font-display text-[clamp(3rem,8vw,6rem)] font-extrabold leading-[0.88] tracking-[-0.08em]">Start something good<span className="text-[hsl(var(--brand-accent))]">.</span></h1><p className="mt-7 max-w-md leading-7 text-[hsl(var(--text-muted))]">One account for better rentals, clearer decisions, and the next place you will call home.</p></section><section className="rounded-[2rem] border border-[hsl(var(--text-primary)/0.12)] bg-white p-6 shadow-[8px_8px_0_hsl(var(--text-primary))] sm:p-8"><p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[hsl(var(--text-muted))]">01 / Your account</p><h2 className="mt-2 font-display text-3xl font-extrabold tracking-[-0.06em]">Let&apos;s get moving.</h2><div className="mt-7 grid grid-cols-2 gap-2 rounded-xl bg-[hsl(var(--bg-warm))] p-1"><button type="button" onClick={() => setRole("tenant")} className={`rounded-lg px-3 py-3 text-xs font-bold transition ${role === "tenant" ? "bg-[hsl(var(--text-primary))] text-[hsl(var(--bg-warm))]" : "text-[hsl(var(--text-muted))]"}`}>I need a place</button><button type="button" onClick={() => setRole("landlord")} className={`rounded-lg px-3 py-3 text-xs font-bold transition ${role === "landlord" ? "bg-[hsl(var(--text-primary))] text-[hsl(var(--bg-warm))]" : "text-[hsl(var(--text-muted))]"}`}>I list places</button></div><form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">{[["name","Full name","Your full name","text",name,setName],["email","Email address","you@example.com","email",email,setEmail],["phone","Phone number","e.g. 0701234567","tel",phone,setPhone],["password","Password","Create a password","password",password,setPassword]].map(([id,label,placeholder,type,value,setValue]) => <div key={id as string}><label htmlFor={id as string} className="mb-2 block text-sm font-bold">{label as string}</label><Input id={id as string} type={type as string} placeholder={placeholder as string} value={value as string} onChange={(e) => (setValue as React.Dispatch<React.SetStateAction<string>>)(e.target.value)} className="h-12 rounded-xl bg-[hsl(var(--bg-warm))]" /></div>)}<Button type="submit" disabled={loading} className="mt-2 h-13 rounded-xl bg-[hsl(var(--text-primary))] font-bold text-[hsl(var(--bg-warm))] hover:bg-[hsl(var(--brand-accent))] hover:text-[hsl(var(--text-primary))]">{loading ? "Creating account…" : "Create account"}<ArrowUpRight data-icon="inline-end" /></Button></form><p className="mt-7 text-center text-sm text-[hsl(var(--text-muted))]">Already here? <Link to="/login" className="font-bold underline decoration-[hsl(var(--brand-accent))] decoration-2 underline-offset-4">Sign in</Link></p></section></div></main>;
 }
