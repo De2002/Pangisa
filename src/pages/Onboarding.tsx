@@ -3,7 +3,7 @@ import {
   ArrowLeft,
   ArrowRight,
   BadgeCheck,
-  CheckCircle2,
+  Check,
   CircleDollarSign,
   FileText,
   Home,
@@ -16,17 +16,15 @@ import {
 import { Button } from "@/components/ui/button";
 
 const TENANT_STEPS = [
-  { icon: Search, text: "Search houses by area and price" },
-  { icon: BadgeCheck, text: "See if the house is still available" },
-  { icon: CircleDollarSign, text: "Pay a small fee — as low as UGX 2,000" },
-  { icon: PhoneCall, text: "Get the landlord's number and call directly" },
+  { icon: Search, text: "Search by area and price" },
+  { icon: BadgeCheck, text: "See what is actually available" },
+  { icon: PhoneCall, text: "Call the landlord directly" },
 ];
 
 const LANDLORD_STEPS = [
-  { icon: FileText, text: "Create your listing in a few minutes" },
-  { icon: CircleDollarSign, text: "Pay a small listing fee — from UGX 10,000" },
-  { icon: Users, text: "Tenants find your property and pay to contact you" },
-  { icon: ShieldCheck, text: "Only serious tenants will reach you" },
+  { icon: FileText, text: "Add your property details" },
+  { icon: CircleDollarSign, text: "Pay once to publish" },
+  { icon: Users, text: "Meet serious tenants" },
 ];
 
 export default function Onboarding() {
@@ -37,129 +35,79 @@ export default function Onboarding() {
   const steps = isTenant ? TENANT_STEPS : LANDLORD_STEPS;
 
   return (
-    <main className="min-h-screen bg-[hsl(var(--bg-warm))] text-[hsl(var(--text-primary))]">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col lg:grid lg:grid-cols-[0.9fr_1.1fr]">
-        <section className={`relative overflow-hidden px-5 pb-8 pt-5 text-white sm:px-8 sm:pb-10 lg:flex lg:min-h-screen lg:flex-col lg:justify-between lg:px-12 lg:py-10 ${isTenant ? "bg-[hsl(var(--brand-primary))]" : "bg-[hsl(var(--brand-primary-dark))]"}`}>
-          <div className="absolute -right-20 top-24 size-56 rounded-full border-[28px] border-[hsl(var(--brand-accent))]/25" />
-          <div className="absolute -bottom-24 -left-16 size-64 rounded-full bg-[hsl(var(--brand-accent))]/15" />
+    <main className="min-h-screen bg-[#f6f6f1] text-[#11130f]">
+      <div className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-5 sm:px-8 lg:px-12 lg:py-8">
+        <header className="flex items-center justify-between border-b border-[#11130f]/15 pb-5">
+          <button onClick={() => navigate("/")} aria-label="Back to home" className="flex items-center gap-2 text-sm font-bold transition-opacity hover:opacity-60">
+            <ArrowLeft className="size-4" /> Back
+          </button>
+          <span className="font-display text-xl font-extrabold tracking-[-0.08em]">pangisa<span className="text-[#c6f135]">.</span></span>
+          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-[#11130f]/45">01 / 01</span>
+        </header>
 
-          <div className="relative z-10 flex items-center justify-between">
-            <button
-              onClick={() => navigate("/")}
-              aria-label="Back to home"
-              className="flex size-10 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-colors hover:bg-white/20"
-            >
-              <ArrowLeft className="size-4" />
-            </button>
-            <span className="font-display text-sm font-extrabold tracking-tight">pangisa<span className="text-[hsl(var(--brand-accent-light))]">.</span></span>
-          </div>
-
-          <div className="relative z-10 flex flex-col gap-6 pt-12 lg:pt-0">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--brand-accent-light))]">
-              <Sparkles className="size-4" />
-              {isTenant ? "Your house hunt starts here" : "Your next tenant starts here"}
+        <div className="flex flex-1 flex-col gap-12 py-12 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-24 lg:py-16">
+          <section className="flex flex-col gap-8">
+            <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#11130f]/55">
+              <Sparkles className="size-4 text-[#759900]" />
+              {isTenant ? "For the next move" : "For property owners"}
             </div>
-            <div className="flex flex-col gap-4">
-              <h1 className="max-w-xl font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-balance sm:text-5xl">
-                {isTenant ? "Find a place that feels like yours." : "Turn your empty space into opportunity."}
+            <div className="flex flex-col gap-5">
+              <h1 className="max-w-3xl font-display text-[clamp(3.25rem,11vw,7.5rem)] font-extrabold leading-[0.88] tracking-[-0.09em] text-balance">
+                {isTenant ? <>Find your <span className="text-[#759900]">next place.</span></> : <>Put your property <span className="text-[#759900]">to work.</span></>}
               </h1>
-              <p className="max-w-md text-sm leading-6 text-white/75 sm:text-base">
+              <p className="max-w-xl text-lg leading-7 text-[#11130f]/65 sm:text-xl sm:leading-8">
                 {isTenant
-                  ? "Real homes, clear details, and a direct line to the person who owns the keys."
-                  : "Put your property in front of serious people who are ready to move, not just browse."}
+                  ? "Real homes. Clear details. A direct line to the person with the keys."
+                  : "List once. Reach people who are ready to move. Keep the time-wasters out."}
               </p>
             </div>
-            <div className="flex items-center gap-3 text-sm font-semibold text-white/85">
-              {isTenant ? <Home className="size-5 text-[hsl(var(--brand-accent-light))]" /> : <BadgeCheck className="size-5 text-[hsl(var(--brand-accent-light))]" />}
+            <div className="flex items-center gap-3 text-sm font-bold">
+              <span className="flex size-8 items-center justify-center rounded-full bg-[#c6f135]"><Check className="size-4" /></span>
               {isTenant ? "A simpler way to move" : "A smarter way to rent"}
             </div>
-          </div>
+          </section>
 
-          <div className="relative z-10 hidden items-center gap-2 text-xs text-white/50 lg:flex">
-            <span className="size-2 rounded-full bg-[hsl(var(--brand-accent))]" />
-            Built for better moves across Uganda
-          </div>
-        </section>
-
-        <section className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-8 lg:px-16 lg:py-12">
-          <div className="mb-8 flex items-center justify-between gap-4">
-            <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--brand-primary))]">
-                Step 1 of 1
-              </p>
-              <p className="text-sm text-[hsl(var(--text-muted))]">A few things to know before you begin</p>
+          <section className="flex flex-col gap-8">
+            <div className="border-t-2 border-[#11130f] pt-4">
+              <p className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-[#11130f]/50">The short version</p>
+              <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-[-0.06em] sm:text-4xl">
+                {isTenant ? "Good houses. Less running around." : "One listing. Better leads."}
+              </h2>
             </div>
-            <div className="flex gap-1.5" aria-label="Progress: complete">
-              <span className="h-1.5 w-10 rounded-full bg-[hsl(var(--brand-primary))]" />
-              <span className="h-1.5 w-3 rounded-full bg-[hsl(var(--surface-2))]" />
-              <span className="h-1.5 w-3 rounded-full bg-[hsl(var(--surface-2))]" />
-            </div>
-          </div>
 
-          <div className="flex flex-col gap-3">
-            <span className={`w-fit rounded-full px-3 py-1.5 text-xs font-bold ${isTenant ? "bg-blue-50 text-blue-700" : "bg-[hsl(var(--brand-accent-light))]/35 text-[hsl(var(--brand-accent-dark))]"}`}>
-              {isTenant ? "For tenants" : "For landlords"}
-            </span>
-            <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-balance sm:text-4xl">
-              {isTenant ? "You want a good house. We will help you find one." : "You have a house to rent. We will find you a tenant."}
-            </h2>
-            <p className="max-w-xl text-sm leading-6 text-[hsl(var(--text-secondary))] sm:text-base">
-              {isTenant
-                ? "No wasted trips. No fake listings. No agents. Just real, available houses near you."
-                : "Pay once to list. Tenants pay to contact you. That means only serious people will call you."}
-            </p>
-          </div>
-
-          <div className={`my-8 rounded-3xl p-5 ${isTenant ? "bg-blue-50" : "bg-[hsl(var(--brand-accent-light))]/35"}`}>
-            <p className={`mb-4 text-sm font-bold ${isTenant ? "text-blue-800" : "text-[hsl(var(--brand-accent-dark))]"}`}>
-              {isTenant ? "As a tenant, you want:" : "As a landlord, you want:"}
-            </p>
-            <ul className={`flex flex-col gap-3 text-sm ${isTenant ? "text-blue-700" : "text-[hsl(var(--brand-accent-dark))]"}`}>
-              {(isTenant
-                ? ["A clean, safe house at a fair price", "To know the house is still available", "To talk to the landlord directly"]
-                : ["A reliable tenant who pays on time", "No time wasters calling just to look", "Your house rented out quickly"]
-              ).map((item) => (
-                <li key={item} className="flex items-start gap-2">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-            <p className={`mt-5 text-sm font-extrabold ${isTenant ? "text-blue-800" : "text-[hsl(var(--brand-accent-dark))]"}`}>Pangisa has got you covered.</p>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[hsl(var(--text-muted))]">How it works</p>
-              <p className="mt-1 text-sm text-[hsl(var(--text-secondary))]">Simple steps. Better connections.</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {steps.map((step, i) => {
+            <div className="flex flex-col border-y border-[#11130f]/20">
+              {steps.map((step, index) => {
                 const Icon = step.icon;
                 return (
-                  <div key={step.text} className="flex gap-3 rounded-2xl border border-[hsl(var(--border))] bg-white p-4 transition-transform hover:-translate-y-0.5">
-                    <div className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${isTenant ? "bg-blue-50 text-blue-700" : "bg-[hsl(var(--brand-accent-light))]/40 text-[hsl(var(--brand-accent-dark))]"}`}>
-                      <Icon className="size-5" />
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="font-display text-xs font-extrabold text-[hsl(var(--text-muted))]">0{i + 1}</span>
-                      <p className="text-sm leading-5 text-[hsl(var(--text-primary))]">{step.text}</p>
-                    </div>
+                  <div key={step.text} className="flex items-center gap-4 border-b border-[#11130f]/15 py-5 last:border-b-0">
+                    <span className="font-mono text-sm font-bold text-[#759900]">0{index + 1}</span>
+                    <Icon className="size-5 shrink-0" />
+                    <p className="text-base font-bold">{step.text}</p>
                   </div>
                 );
               })}
             </div>
-          </div>
 
-          <div className="mt-8 flex flex-col gap-3 border-t border-[hsl(var(--border))] pt-6 lg:mt-auto">
-            <Button onClick={() => navigate(`/auth?role=${role}`)} className="h-12 w-full bg-[hsl(var(--brand-primary))] text-base font-bold text-white hover:bg-[hsl(var(--brand-primary-dark))]">
-              Create My Account <ArrowRight data-icon="inline-end" />
+            <div className="flex items-start gap-4 rounded-2xl bg-[#11130f] p-5 text-[#f6f6f1]">
+              <ShieldCheck className="mt-0.5 size-5 shrink-0 text-[#c6f135]" />
+              <p className="text-sm leading-6 text-[#f6f6f1]/75">
+                {isTenant ? <>Contact details start at <strong className="text-white">UGX 2,000.</strong> No agents, no guesswork.</> : <>Listing starts at <strong className="text-white">UGX 10,000.</strong> Tenants pay to contact you.</>}
+              </p>
+            </div>
+          </section>
+        </div>
+
+        <footer className="flex flex-col gap-3 border-t border-[#11130f]/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-[#11130f]/55">Ready when you are.</p>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row-reverse">
+            <Button onClick={() => navigate(`/auth?role=${role}`)} className="h-12 w-full rounded-xl bg-[#c6f135] px-7 text-base font-bold text-[#11130f] hover:bg-[#b6e326] sm:w-auto">
+              {isTenant ? "Start searching" : "List my property"} <ArrowRight data-icon="inline-end" />
             </Button>
-            <button onClick={() => navigate(`/auth?role=${role}&mode=login`)} className="py-2 text-sm text-[hsl(var(--text-muted))] transition-colors hover:text-[hsl(var(--brand-primary))]">
-              I already have an account — Sign in
+            <button onClick={() => navigate(`/auth?role=${role}&mode=login`)} className="h-12 px-3 text-sm font-bold text-[#11130f]/55 transition-colors hover:text-[#11130f]">
+              Sign in instead
             </button>
           </div>
-        </section>
+        </footer>
       </div>
     </main>
   );
