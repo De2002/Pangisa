@@ -1,9 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { ArrowLeft, Mail, KeyRound, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/hooks/useAuth";
+import { recordReferral, getStoredReferralCode, clearReferralCode, storeReferralCode } from "@/hooks/useAffiliate";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,12 @@ export default function OTPAuth() {
   const role = (params.get("role") as "tenant" | "landlord") ?? "tenant";
   const mode = params.get("mode") ?? "signup";
   const isSignup = mode !== "login";
+
+  // Store referral code from URL on mount
+  useEffect(() => {
+    const refCode = params.get("ref");
+    if (refCode) storeReferralCode(refCode);
+  }, [params]);
 
   const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState("");
@@ -68,14 +75,25 @@ export default function OTPAuth() {
 
   const handleVerifyWithCode = async (code: string) => {
     setLoading(true);
-    const { error } = await verifyOTP(email, code, role, name || undefined);
+    const result = await verifyOTP(email, code, role, name || undefined);
     setLoading(false);
-    if (error) {
-      toast.error(error.includes("otp") || error.includes("token") ? "Wrong code. Please check your email and try again." : error);
+    if (result.error) {
+      toast.error(result.error.includes("otp") || result.error.includes("token") ? "Wrong code. Please check your email and try again." : result.error);
       setOtp(["", "", "", ""]);
       otpRefs.current[0]?.focus();
       return;
     }
+
+    // Attribute referral on signup
+    if (isSignup && result.user?.id) {
+      const refCode = getStoredReferralCode();
+      if (refCode) {
+        recordReferral({ referralCode: refCode, referredUserId: result.user.id, source: "generic_link" })
+          .then(() => clearReferralCode())
+          .catch(() => {});
+      }
+    }
+
     toast.success(isSignup ? "Welcome to Pangisa!" : "Welcome back!");
     if (role === "landlord") {
       navigate("/landlord", { replace: true });

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import {
   Phone, Bookmark, Clock, LogIn,
   MapPin, MessageCircle, ArrowRight, Search,
-  Navigation, Loader2,
+  Navigation, Loader2, Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -111,6 +111,25 @@ export default function TenantDashboard() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Affiliate banner */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <button
+          onClick={() => navigate("/affiliate")}
+          className="w-full flex items-center justify-between gap-3 bg-gradient-to-r from-[hsl(152,52%,14%)] to-[hsl(152,52%,22%)] text-white rounded-2xl px-5 py-4 hover:opacity-95 transition-opacity"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+              <Gift className="w-4 h-4 text-white" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold">Earn with Pangisa</p>
+              <p className="text-xs text-white/65">Share rentals or refer users — earn 20% commission</p>
+            </div>
+          </div>
+          <ArrowRight className="w-4 h-4 text-white/70 flex-shrink-0" />
+        </button>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

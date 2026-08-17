@@ -105,7 +105,7 @@ export function useAuth() {
     token: string,
     role: "tenant" | "landlord",
     name?: string
-  ): Promise<{ error?: string }> => {
+  ): Promise<{ error?: string; user?: import("@supabase/supabase-js").User }> => {
     const { data, error } = await supabase.auth.verifyOtp({
       email,
       token,
@@ -128,7 +128,8 @@ export function useAuth() {
 
     const profile = mapSupabaseUser(data.user, { name: displayName, role });
     cacheUser(profile);
-    return {};
+    // Return user for referral attribution in OTPAuth
+    return { user: data.user };
   };
 
   const logout = async () => {

@@ -16,6 +16,7 @@ import Onboarding from "./pages/Onboarding";
 import OTPAuth from "./pages/OTPAuth";
 import LocationSetup from "./pages/LocationSetup";
 import Admin from "./pages/Admin";
+import AffiliateDashboard from "./pages/AffiliateDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,9 @@ const App = () => (
 
           {/* Admin */}
           <Route path="/admin" element={<Admin />} />
+
+          {/* Affiliate */}
+          <Route path="/affiliate" element={<AffiliateDashboard />} />
 
           {/* Legacy auth */}
           <Route path="/login" element={<Login />} />
