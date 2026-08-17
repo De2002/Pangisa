@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+
+@layer base {
+  :root {
+    /* ── Pangisa Design System ─────────────────────────────── */
+
+    /* Brand — deep forest green + warm amber */
+    --brand-primary: 152 52% 22%;
+    --brand-primary-dark: 152 52% 15%;
+    --brand-accent: 34 98% 44%;
+    --brand-accent-dark: 34 98% 36%;
+    --brand-accent-light: 42 100% 70%;
+
+    /* Surfaces */
+    --bg-warm: 38 20% 97%;
+    --surface-1: 38 18% 98%;
+    --surface-2: 38 14% 93%;
+
+    /* Text */
+    --text-primary: 215 25% 10%;
+    --text-secondary: 215 14% 32%;
+    --text-muted: 215 10% 56%;
+
+    /* Semantic */
+    --success: 142 72% 29%;
+    --warning: 38 96% 48%;
+    --error: 0 84% 56%;
+
+    /* shadcn/ui tokens */
+    --background: 38 20% 97%;
+    --foreground: 215 25% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 10%;
+    --primary: 152 52% 22%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 38 14% 93%;
+    --secondary-foreground: 215 25% 10%;
+    --muted: 38 14% 93%;
+    --muted-foreground: 215 10% 56%;
+    --accent: 34 98% 44%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 38 16% 87%;
+    --input: 38 16% 87%;
+    --ring: 152 52% 22%;
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3 {
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
