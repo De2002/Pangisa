@@ -146,7 +146,7 @@ export default function ListingDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-7">
           {/* Left col */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-6">
 
             {/* Photo gallery */}
             <div className="relative rounded-2xl overflow-hidden bg-black" style={{ aspectRatio: "16/10" }}>
@@ -212,11 +212,11 @@ export default function ListingDetail() {
               </div>
             )}
 
-            {/* Title card */}
-            <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
+            {/* Title */}
+            <div>
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1">
-                  <h1 className="text-xl font-bold text-[hsl(var(--text-primary))] leading-tight mb-1">{listing.title}</h1>
+                  <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] leading-tight mb-1 text-balance">{listing.title}</h1>
                   <div className="flex items-center gap-1 text-sm text-[hsl(var(--text-muted))]">
                     <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>{listing.address}{listing.address && listing.location ? ", " : ""}{listing.location}</span>
@@ -253,8 +253,8 @@ export default function ListingDetail() {
             </div>
 
             {/* Details */}
-            <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
-              <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-4">Property Details</h2>
+            <div className="border-t border-[hsl(var(--border))] pt-6">
+              <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-4">Property details</h2>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   { label: "Bedrooms", value: listing.bedrooms, icon: "🛏️" },
@@ -288,7 +288,7 @@ export default function ListingDetail() {
 
             {/* Description */}
             {listing.description && (
-              <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
+              <div className="border-t border-[hsl(var(--border))] pt-6">
                 <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-3">About this place</h2>
                 <p className="text-[hsl(var(--text-secondary))] leading-relaxed text-sm">{listing.description}</p>
               </div>
@@ -296,8 +296,8 @@ export default function ListingDetail() {
 
             {/* Amenities */}
             {amenityDetails.length > 0 && (
-              <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
-                <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-4">What's included</h2>
+              <div className="border-t border-[hsl(var(--border))] pt-6">
+                <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-4">What&apos;s included</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {amenityDetails.map((amenity) => amenity && (
                     <div key={amenity.id} className="flex items-center gap-2.5 py-2 px-3 rounded-xl bg-[hsl(var(--surface-1))] border border-[hsl(var(--border))]">
@@ -311,8 +311,8 @@ export default function ListingDetail() {
 
             {/* Rules */}
             {listing.rules.length > 0 && (
-              <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
-                <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-3">House Rules</h2>
+              <div className="border-t border-[hsl(var(--border))] pt-6">
+                <h2 className="font-bold text-base text-[hsl(var(--text-primary))] mb-3">House rules</h2>
                 <ul className="space-y-2">
                   {listing.rules.map((rule, i) => (
                     <li key={i} className="flex items-center gap-2.5 text-sm text-[hsl(var(--text-secondary))]">
@@ -328,7 +328,7 @@ export default function ListingDetail() {
 
             {/* Map */}
             {listing.lat && listing.lng && (
-              <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
+              <div className="border-t border-[hsl(var(--border))] pt-6">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-bold text-base text-[hsl(var(--text-primary))]">Location</h2>
                   {!hasUnlocked ? (
@@ -450,10 +450,8 @@ export default function ListingDetail() {
         </div>
       </div>
 
-      {showModal && (
-        <GetItNowModal listing={listing} onClose={() => setShowModal(false)} onConfirm={handleConfirmPayment}
-          isLoggedIn={!!user} onLoginRequired={() => navigate("/auth?role=tenant&mode=login")} />
-      )}
+      <GetItNowModal listing={listing} open={showModal} onClose={() => setShowModal(false)} onConfirm={handleConfirmPayment}
+        isLoggedIn={!!user} onLoginRequired={() => navigate("/auth?role=tenant&mode=login")} />
 
       {showReportModal && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">

@@ -211,7 +211,10 @@ export default function PropertyMap({
 
   return (
     <div className="space-y-2">
-      <div className="relative rounded-2xl overflow-hidden border border-[hsl(var(--border))]">
+      <div
+        className="relative z-0 rounded-2xl overflow-hidden border border-[hsl(var(--border))]"
+        style={{ isolation: "isolate" }}
+      >
         <div ref={mapContainerRef} style={{ height: 260, width: "100%" }} />
 
         {/* Lock overlay */}
