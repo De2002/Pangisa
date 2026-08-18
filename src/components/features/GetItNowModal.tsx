@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Phone, Lock, CheckCircle2, Clock, X, MapPin, MessageCircle, Navigation } from "lucide-react";
+import { Phone, Lock, CheckCircle2, Clock, MapPin, MessageCircle, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { formatUGX, calcTenantFee, PENDING_EXPIRY_HOURS } from "@/constants/fees";
 import type { Listing, Transaction } from "@/types";
 
 interface GetItNowModalProps {
   listing: Listing;
+  open: boolean;
   onClose: () => void;
   onConfirm: () => Promise<Transaction | null>;
   isLoggedIn: boolean;
@@ -15,7 +17,7 @@ interface GetItNowModalProps {
 type Step = "confirm" | "processing" | "success";
 
 export default function GetItNowModal({
-  listing, onClose, onConfirm, isLoggedIn, onLoginRequired,
+  listing, open, onClose, onConfirm, isLoggedIn, onLoginRequired,
 }: GetItNowModalProps) {
   const [step, setStep] = useState<Step>("confirm");
   const [transaction, setTransaction] = useState<Transaction | null>(null);
@@ -27,6 +29,14 @@ export default function GetItNowModal({
     const tx = await onConfirm();
     setTransaction(tx);
     setStep("success");
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) return;
+    if (step === "processing") return; // don't allow closing mid-payment
+    onClose();
+    // reset for next open
+    setTimeout(() => { setStep("confirm"); setTransaction(null); }, 250);
   };
 
   const openWhatsApp = (phone: string) => {
@@ -42,24 +52,26 @@ export default function GetItNowModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[hsl(var(--border))]">
-          <h2 className="font-bold text-lg text-[hsl(var(--text-primary))]">
-            {step === "success" ? "You're In Contact 🎉" : "Get It Now"}
-          </h2>
-          {step !== "processing" && (
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-full hover:bg-[hsl(var(--surface-2))] flex items-center justify-center transition-colors"
-            >
-              <X className="w-4 h-4 text-[hsl(var(--text-muted))]" />
-            </button>
-          )}
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="z-[1200] rounded-t-3xl border-0 p-0 max-h-[90vh] overflow-y-auto sm:max-w-md sm:mx-auto [&>button]:hidden"
+      >
+        {/* Grab handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1.5 rounded-full bg-[hsl(var(--border))]" />
         </div>
 
-        <div className="p-6">
+        <SheetHeader className="px-6 pt-2 pb-4 text-left">
+          <SheetTitle className="text-lg font-bold text-[hsl(var(--text-primary))]">
+            {step === "success" ? "You're in contact 🎉" : "Get it now"}
+          </SheetTitle>
+          <SheetDescription className="sr-only">
+            Unlock the landlord&apos;s contact details for this property.
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="px-6 pb-8">
           {step === "confirm" && (
             <>
               <div className="bg-[hsl(var(--surface-1))] rounded-2xl p-4 mb-5 border border-[hsl(var(--border))]">
@@ -68,7 +80,7 @@ export default function GetItNowModal({
                 <p className="text-[hsl(var(--brand-primary))] font-bold mt-2 text-lg">{formatUGX(listing.monthlyRent)}/month</p>
               </div>
 
-              <div className="space-y-2.5 mb-5 text-sm text-[hsl(var(--text-secondary))]">
+              <div className="space-y-2.5 mb-6 text-sm text-[hsl(var(--text-secondary))]">
                 {[
                   { icon: Phone, text: "The landlord's phone number is revealed to you" },
                   { icon: MapPin, text: "Exact location and address unlocked" },
@@ -84,20 +96,12 @@ export default function GetItNowModal({
                 ))}
               </div>
 
-              <div className="rounded-2xl border-2 border-[hsl(var(--brand-accent)/0.3)] bg-[hsl(var(--brand-accent)/0.04)] p-4 mb-5">
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-sm text-[hsl(var(--text-secondary))]">Contact fee</span>
-                  <span className="font-bold text-[hsl(var(--brand-accent))] text-xl">{formatUGX(fee)}</span>
-                </div>
-                <p className="text-xs text-[hsl(var(--text-muted))]">0.25% of monthly rent · min UGX 2,000</p>
-              </div>
-
               <Button
                 onClick={handlePay}
                 className="w-full font-bold bg-[hsl(var(--brand-accent))] hover:bg-[hsl(var(--brand-accent-dark))] text-white rounded-xl shadow-sm"
                 style={{ height: 52 }}
               >
-                Get It Now — {formatUGX(fee)}
+                Get it now — {formatUGX(fee)}
               </Button>
               <p className="text-xs text-center text-[hsl(var(--text-muted))] mt-3">
                 Pay to connect directly with the landlord.
@@ -123,7 +127,7 @@ export default function GetItNowModal({
                 <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-3">
                   <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                 </div>
-                <p className="font-bold text-xl text-[hsl(var(--text-primary))] mb-1">Contact Unlocked!</p>
+                <p className="font-bold text-xl text-[hsl(var(--text-primary))] mb-1">Contact unlocked!</p>
                 <p className="text-sm text-[hsl(var(--text-muted))] text-center">
                   Call or WhatsApp the landlord directly.
                 </p>
@@ -146,7 +150,7 @@ export default function GetItNowModal({
                   href={`tel:${transaction.unlockedPhone}`}
                   className="flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[hsl(var(--brand-primary))] text-[hsl(var(--brand-primary))] text-sm font-semibold hover:bg-[hsl(var(--brand-primary)/0.08)] transition-colors"
                 >
-                  <Phone className="w-4 h-4" /> Call Now
+                  <Phone className="w-4 h-4" /> Call now
                 </a>
                 <button
                   onClick={() => openWhatsApp(transaction.unlockedPhone)}
@@ -162,7 +166,7 @@ export default function GetItNowModal({
                   onClick={openGoogleMaps}
                   className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-[hsl(var(--border))] text-sm font-semibold text-[hsl(var(--text-secondary))] hover:bg-[hsl(var(--surface-2))] transition-colors mb-4"
                 >
-                  <Navigation className="w-4 h-4" /> Get Directions
+                  <Navigation className="w-4 h-4" /> Get directions
                 </button>
               )}
 
@@ -174,7 +178,7 @@ export default function GetItNowModal({
               </div>
 
               <Button
-                onClick={onClose}
+                onClick={() => handleOpenChange(false)}
                 className="w-full bg-[hsl(var(--brand-primary))] hover:bg-[hsl(var(--brand-primary-dark))] text-white rounded-xl font-semibold"
                 style={{ height: 48 }}
               >
@@ -183,7 +187,7 @@ export default function GetItNowModal({
             </>
           )}
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }
