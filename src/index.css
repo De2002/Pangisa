@@ -16,14 +16,14 @@
     --brand-accent-light: 42 100% 70%;
 
     /* Surfaces */
-    --bg-warm: 38 20% 97%;
-    --surface-1: 38 18% 98%;
-    --surface-2: 38 14% 93%;
+    --bg-warm: 38 24% 95%;
+    --surface-1: 40 25% 98%;
+    --surface-2: 38 18% 90%;
 
     /* Text */
-    --text-primary: 215 25% 10%;
-    --text-secondary: 215 14% 32%;
-    --text-muted: 215 10% 56%;
+    --text-primary: 158 28% 8%;
+    --text-secondary: 158 14% 27%;
+    --text-muted: 158 8% 48%;
 
     /* Semantic */
     --success: 142 72% 29%;
