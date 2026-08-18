@@ -4,7 +4,9 @@ import {
   MapPin, ShieldCheck, Phone, ChevronLeft, ChevronRight,
   Bookmark, BookmarkCheck, Flag, Share2, Clock, Lock, Play,
   MessageCircle, Check, X, CheckCircle2, Loader2, Gift,
+  BadgeCheck, Info, Handshake, Eye,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -214,11 +216,25 @@ export default function ListingDetail() {
 
             {/* Title */}
             <div>
+              <div className="flex items-center gap-2 mb-2.5">
+                {listing.isVerified ? (
+                  <span className="inline-flex items-center gap-1.5 bg-[hsl(var(--brand-primary))] text-white text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+                    <BadgeCheck className="w-3.5 h-3.5" /> Pangisa Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 bg-[hsl(var(--surface-2))] text-[hsl(var(--text-secondary))] text-xs font-bold uppercase tracking-wide px-2.5 py-1 rounded-full">
+                    <Info className="w-3.5 h-3.5" /> Verification pending
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-[hsl(var(--text-muted))]">
+                  {typeIcon} {typeLabel}
+                </span>
+              </div>
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-[hsl(var(--text-primary))] leading-tight mb-1 text-balance">{listing.title}</h1>
+                  <h1 className="text-2xl lg:text-4xl font-bold text-[hsl(var(--text-primary))] leading-[1.1] mb-2 text-balance">{listing.title}</h1>
                   <div className="flex items-center gap-1 text-sm text-[hsl(var(--text-muted))]">
-                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
                     <span>{listing.address}{listing.address && listing.location ? ", " : ""}{listing.location}</span>
                   </div>
                 </div>
@@ -251,6 +267,53 @@ export default function ListingDetail() {
                 </div>
               )}
             </div>
+
+            {/* Trust band */}
+            {listing.isVerified ? (
+              <div className="rounded-2xl overflow-hidden border border-[hsl(var(--brand-primary)/0.2)]">
+                <div className="bg-[hsl(var(--brand-primary))] px-5 py-4 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center flex-shrink-0">
+                    <BadgeCheck className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-white font-bold text-base leading-tight">A listing Pangisa stands behind</p>
+                    <p className="text-white/70 text-xs mt-0.5">We verified the owner&apos;s identity and proof of ownership.</p>
+                  </div>
+                </div>
+                <div className="bg-white grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[hsl(var(--border))]">
+                  {[
+                    { icon: ShieldCheck, label: "Identity checked", sub: "Owner ID confirmed" },
+                    { icon: Handshake, label: "Ownership confirmed", sub: "Proof reviewed" },
+                    { icon: Eye, label: "Held while you talk", sub: "No double-booking" },
+                  ].map(({ icon: Icon, label, sub }) => (
+                    <div key={label} className="flex items-center gap-2.5 px-4 py-3">
+                      <Icon className="w-4 h-4 text-[hsl(var(--brand-primary))] flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-[hsl(var(--text-primary))] leading-none">{label}</p>
+                        <p className="text-xs text-[hsl(var(--text-muted))] mt-1">{sub}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--surface-1))] p-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[hsl(var(--surface-2))] flex items-center justify-center flex-shrink-0">
+                    <Info className="w-5 h-5 text-[hsl(var(--text-secondary))]" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-base text-[hsl(var(--text-primary))] leading-tight">Verification still pending</p>
+                    <p className="text-sm text-[hsl(var(--text-secondary))] mt-1 leading-relaxed">
+                      We only stand behind listings with the verified badge. We connect you and strive to verify every listing &mdash; always confirm identity, ownership and the unit before paying anything.
+                    </p>
+                    <Link to="/disclaimer" className="inline-flex items-center gap-1 text-sm font-semibold text-[hsl(var(--brand-primary))] mt-2 hover:underline">
+                      How verification works <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Details */}
             <div className="border-t border-[hsl(var(--border))] pt-6">
@@ -361,9 +424,9 @@ export default function ListingDetail() {
           <div className="lg:col-span-1">
             <div className="sticky top-24 space-y-4">
               {/* Price card */}
-              <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-sm">
+              <div className="bg-white rounded-2xl p-5 border border-[hsl(var(--border))] shadow-[0_4px_24px_-8px_rgba(0,0,0,0.12)]">
                 <div className="flex items-end justify-between mb-1">
-                  <span className="text-3xl font-bold text-[hsl(var(--brand-primary))]">{formatUGX(listing.monthlyRent)}</span>
+                  <span className="text-3xl lg:text-4xl font-bold text-[hsl(var(--brand-primary))] tracking-tight">{formatUGX(listing.monthlyRent)}</span>
                   <span className="text-[hsl(var(--text-muted))] text-sm mb-1">/month</span>
                 </div>
                 {listing.deposit > 0 && (
@@ -404,11 +467,22 @@ export default function ListingDetail() {
                   ) : listing.availableUnits > 0 ? (
                     <>
                       <Button onClick={handleGetItNow}
-                        className="w-full font-bold bg-[hsl(var(--brand-accent))] hover:bg-[hsl(var(--brand-accent-dark))] text-white rounded-xl shadow-sm mb-2"
-                        style={{ height: 52 }}>
+                        className="w-full font-bold bg-[hsl(var(--brand-accent))] hover:bg-[hsl(var(--brand-accent-dark))] text-white rounded-xl shadow-sm mb-3 text-base"
+                        style={{ height: 54 }}>
                         Get It Now — {formatUGX(fee)}
                       </Button>
-                      <p className="text-xs text-center text-[hsl(var(--text-muted))]">Pay to connect. Property held while you discuss.</p>
+                      <ul className="space-y-2">
+                        {[
+                          "Unlock the verified contact instantly",
+                          "Property held while you discuss",
+                          "Report anytime if something's off",
+                        ].map((point) => (
+                          <li key={point} className="flex items-center gap-2 text-xs text-[hsl(var(--text-secondary))]">
+                            <CheckCircle2 className="w-4 h-4 text-[hsl(var(--brand-primary))] flex-shrink-0" />
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
                     </>
                   ) : (
                     <div className="bg-red-50 rounded-xl p-3 text-center border border-red-100">
@@ -431,11 +505,14 @@ export default function ListingDetail() {
                     )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="font-bold text-[hsl(var(--text-primary))] text-sm">{listing.landlord.name}</p>
-                      {listing.landlord.isVerified && <ShieldCheck className="w-4 h-4 text-[hsl(var(--brand-primary))]" />}
-                    </div>
-                    <p className="text-xs text-[hsl(var(--text-muted))]">Joined {new Date(listing.landlord.joinedAt).getFullYear()}</p>
+                    <p className="font-bold text-[hsl(var(--text-primary))] text-sm">{listing.landlord.name}</p>
+                    {listing.landlord.isVerified ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[hsl(var(--brand-primary))] mt-0.5">
+                        <BadgeCheck className="w-3.5 h-3.5" /> Verified owner
+                      </span>
+                    ) : (
+                      <p className="text-xs text-[hsl(var(--text-muted))] mt-0.5">Joined {new Date(listing.landlord.joinedAt).getFullYear()}</p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-3 flex items-center gap-2 text-sm text-[hsl(var(--text-muted))]">
