@@ -53,28 +53,6 @@ export default function AffiliateDashboard() {
 
   const projectedCommission = projectedTenantReferrals * tenantPayment * 0.2 + projectedLandlordReferrals * landlordPayment * 0.2;
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-[hsl(var(--surface-2))]">
-        <Navbar />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center max-w-sm px-6">
-            <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--brand-primary)/0.08)] flex items-center justify-center mx-auto mb-5">
-              <LogIn className="w-8 h-8 text-[hsl(var(--brand-primary))]" />
-            </div>
-            <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-2">Sign in to continue</h2>
-            <p className="text-[hsl(var(--text-muted))] text-sm mb-6">You need an account to become a Pangisa affiliate.</p>
-            <Button onClick={() => navigate("/auth?role=tenant")}
-              className="bg-[hsl(var(--brand-primary))] text-white rounded-xl w-full h-11 font-semibold">
-              Sign In / Register
-            </Button>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   // ── Not yet an affiliate ──────────────────────────────────────────────────
   if (!isLoading && !affiliate) {
     return (
@@ -214,6 +192,28 @@ export default function AffiliateDashboard() {
               : <>Become a Referrer — It's Free <ArrowRight className="w-4 h-4 ml-2" /></>}
           </Button>
           <p className="text-xs text-center text-[hsl(var(--text-muted))] mt-2">No fee. No commitment. Earn as you share.</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--surface-2))]">
+        <Navbar />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center max-w-sm px-6">
+            <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--brand-primary)/0.08)] flex items-center justify-center mx-auto mb-5">
+              <LogIn className="w-8 h-8 text-[hsl(var(--brand-primary))]" />
+            </div>
+            <h2 className="text-xl font-bold text-[hsl(var(--text-primary))] mb-2">Ready to start earning?</h2>
+            <p className="text-[hsl(var(--text-muted))] text-sm mb-6">Create an account to activate your affiliate link and start referring.</p>
+            <Button onClick={() => navigate("/auth?role=tenant")}
+              className="bg-[hsl(var(--brand-primary))] text-white rounded-xl w-full h-11 font-semibold">
+              Sign In / Register
+            </Button>
+          </div>
         </div>
         <Footer />
       </div>
