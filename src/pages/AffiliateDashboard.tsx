@@ -4,7 +4,7 @@ import {
   TrendingUp, Users, Copy, Share2, CheckCircle2,
   Clock, DollarSign, ArrowRight, ChevronRight, Loader2,
   LogIn, Wallet, Gift, Phone, X, Home, Building2,
-  BadgeCheck, Info,
+  BadgeCheck, Info, Calculator, Link2, RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,12 @@ export default function AffiliateDashboard() {
   const [payoutPhone, setPayoutPhone] = useState("");
   const [processingPayout, setProcessingPayout] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [projectedTenantReferrals, setProjectedTenantReferrals] = useState(10);
+  const [projectedLandlordReferrals, setProjectedLandlordReferrals] = useState(3);
+  const [tenantPayment, setTenantPayment] = useState(5000);
+  const [landlordPayment, setLandlordPayment] = useState(30000);
+
+  const projectedCommission = projectedTenantReferrals * tenantPayment * 0.2 + projectedLandlordReferrals * landlordPayment * 0.2;
 
   if (!user) {
     return (
@@ -75,9 +81,10 @@ export default function AffiliateDashboard() {
       <div className="min-h-screen bg-[hsl(var(--surface-2))]">
         <Navbar />
 
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Hero */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[hsl(var(--brand-primary))] mb-3">Pangisa partner program</p>
             <div className="w-20 h-20 rounded-3xl bg-[hsl(var(--brand-primary))] flex items-center justify-center mx-auto mb-6 shadow-lg">
               <Gift className="w-10 h-10 text-white" />
             </div>
@@ -141,6 +148,35 @@ export default function AffiliateDashboard() {
                 <p className="text-[10px] text-[hsl(var(--text-muted))] mt-0.5">{c.desc}</p>
               </div>
             ))}
+          </div>
+
+          {/* Projection calculator */}
+          <div className="bg-[hsl(var(--brand-primary))] rounded-2xl p-6 mb-5 text-white shadow-lg">
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <div className="flex items-center gap-2 text-[hsl(var(--brand-accent-light))] text-xs font-bold uppercase tracking-wider mb-2"><Calculator className="w-4 h-4" /> Commission projection</div>
+                <h2 className="text-xl font-bold">See what your network could earn</h2>
+                <p className="text-sm text-white/70 mt-1">Adjust the assumptions to model a typical month.</p>
+              </div>
+              <button onClick={() => { setProjectedTenantReferrals(10); setProjectedLandlordReferrals(3); setTenantPayment(5000); setLandlordPayment(30000); }} className="p-2 text-white/70 hover:text-white" aria-label="Reset calculator"><RotateCcw className="w-4 h-4" /></button>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                { label: "Tenant referrals / month", value: projectedTenantReferrals, set: (value: number) => setProjectedTenantReferrals(value), min: 0 },
+                { label: "Landlord referrals / month", value: projectedLandlordReferrals, set: (value: number) => setProjectedLandlordReferrals(value), min: 0 },
+                { label: "Tenant payment (UGX)", value: tenantPayment, set: (value: number) => setTenantPayment(value), min: 0 },
+                { label: "Landlord payment (UGX)", value: landlordPayment, set: (value: number) => setLandlordPayment(value), min: 0 },
+              ].map((field) => (
+                <label key={field.label} className="text-xs font-semibold text-white/75">
+                  {field.label}
+                  <Input type="number" min={field.min} value={field.value} onChange={(e) => field.set(Math.max(field.min, Number(e.target.value) || 0))} className="mt-1.5 bg-white/10 border-white/20 text-white placeholder:text-white/40" />
+                </label>
+              ))}
+            </div>
+            <div className="mt-6 pt-5 border-t border-white/15 flex items-end justify-between gap-4">
+              <div><p className="text-xs text-white/60 uppercase tracking-wider font-bold">Projected gross commission</p><p className="text-3xl font-bold mt-1">{formatUGX(projectedCommission)}</p></div>
+              <p className="text-xs text-right text-white/60 max-w-[150px]">Before reversals or payout processing. Based on a 20% rate.</p>
+            </div>
           </div>
 
           {/* Terms summary */}
